@@ -1,4 +1,4 @@
-# 🇺🇸 USA Three-Branch Agent System
+# USA Three-Branch Agent System
 
 > 基于美国三权分立（Separation of Powers）制度设计的智能多智能体系统，集成 LLM 大模型，将宪法制衡机制映射到 Agent 协作架构中。
 
@@ -206,6 +206,7 @@ agent_system_USA/
 5. **紧急立法**: 系统过载时众议院自动提出扩容法案
 6. **制衡保护**: 宪法保护的 Agent（总统/参议院/众议院/最高法院）不可被删除
 7. **自组织涌现**: 信息素路由、负载自平衡、自动扩缩容
+<img width="1908" height="1014" alt="3158964a-a7b5-4eb7-9efa-9ae44a663bee" src="https://github.com/user-attachments/assets/37a70771-5669-46d3-af5a-fc58bbe47d25" />
 
 ## 许可
 
