@@ -1,6 +1,6 @@
 # USA Three-Branch Agent System
 
-> 基于美国三权分立（Separation of Powers）制度设计的智能多智能体系统，集成 LLM 大模型，将宪法制衡机制映射到 Agent 协作架构中。
+> 基于openclaw的美国三权分立（Separation of Powers）制度设计的智能多智能体系统，集成 LLM 大模型，将宪法制衡机制映射到 Agent 协作架构中。
 
 ## 核心理念
 
