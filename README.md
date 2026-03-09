@@ -1,6 +1,6 @@
-# USA Three-Branch Agent System
+# Base openclaw on USA Three-Branch Agent System
 
-> A multi-agent system inspired by the U.S. separation of powers, integrating LLMs and mapping constitutional checks and balances into an agent collaboration architecture.
+> Base openclaw on  A multi-agent system inspired by the U.S. separation of powers, integrating LLMs and mapping constitutional checks and balances into an agent collaboration architecture.
 
 ## Core Idea
 
@@ -205,6 +205,7 @@ After launching the system, you can observe the following institutional behavior
 5. **Emergency legislation**: when the system is overloaded, the House may automatically propose expansion bills
 6. **Institutional protection**: constitutionally protected Agents (President, Senate, House, Supreme Court) cannot be deleted
 7. **Self-organization**: stigmergy-based routing, load balancing, and automatic scaling
+<img width="1908" height="1014" alt="3158964a-a7b5-4eb7-9efa-9ae44a663bee" src="https://github.com/user-attachments/assets/fa60c2eb-7c2c-4c7c-9ae1-463c81630223" />
 
 ## License
 
