@@ -1,84 +1,83 @@
-# Base openclaw on USA Three-Branch Agent System
+# USA Three-Branch Agent System
 
-> 基于openclaw的美国三权分立（Separation of Powers）制度设计的智能多智能体系统，集成 LLM 大模型，将宪法制衡机制映射到 Agent 协作架构中。
+> A multi-agent system inspired by the U.S. separation of powers, integrating LLMs and mapping constitutional checks and balances into an agent collaboration architecture.
 
-## 核心理念
+## Core Idea
 
-本系统将 **美国宪法** 的三权分立制度映射到多智能体系统设计中：
+This project maps the **U.S. constitutional principle of separation of powers** into a multi-agent system design:
 
-| 宪法制度 | 系统映射 | Agent 角色 |
+| Constitutional Branch | System Mapping | Agent Roles |
 |---------|---------|-----------|
-| **行政权 (Executive)** | 任务执行与指挥 | President + Workers (内阁) |
-| **立法权 (Legislative)** | 政策制定与审批 | Senate (参议院) + House (众议院) |
-| **司法权 (Judicial)** | 合规审查与裁决 | Supreme Court (最高法院) |
+| **Executive** | Task execution and command | President + Workers (Cabinet) |
+| **Legislative** | Policy making and approval | Senate + House |
+| **Judicial** | Compliance review and judgment | Supreme Court |
 
-### 制衡机制 (Checks & Balances)
+### Checks and Balances
 
-| 制衡关系 | 现实制度 | 系统实现 |
+| Relationship | Real-World Institution | System Implementation |
 |---------|---------|---------|
-| 立法 → 行政 | 国会立法，总统签署/否决 | 法案经两院投票后送总统签署 |
-| 行政 → 立法 | 总统否决权 | President 可否决法案 |
-| 立法 → 行政 | 2/3 多数推翻否决 | Congress 超级多数推翻 VETO |
-| 司法 → 立法/行政 | 违宪审查 | Supreme Court 审查法案和行政令 |
-| 立法 → 行政 | 弹劾权 | House 发起弹劾，Senate 审判 |
-| 行政 → 司法 | 法官任命 | President 任命，Senate 确认 |
-| 立法 → 预算 | 拨款权 (Power of the Purse) | House 发起资源分配法案 |
+| Legislative -> Executive | Congress passes laws, President signs or vetoes | Bills are sent to the President after passing both chambers |
+| Executive -> Legislative | Presidential veto | The President can veto bills |
+| Legislative -> Executive | Two-thirds override of veto | Congress can override a veto with a supermajority |
+| Judicial -> Legislative / Executive | Judicial review | The Supreme Court reviews bills and executive orders |
+| Legislative -> Executive | Impeachment power | The House initiates impeachment and the Senate holds trial |
+| Executive -> Judicial | Judicial appointments | The President appoints and the Senate confirms |
+| Legislative -> Budget | Power of the purse | The House initiates resource allocation bills |
 
-## 架构
+## Architecture
 
 ```
-                     WE THE PEOPLE (用户/前端)
-                      HTTP API → Gateway
+                    WE THE PEOPLE (User / Frontend)
+                        HTTP API -> Gateway
 ┌──────────────────────────────────────────────────────────────┐
-│                    CONSTITUTION (宪法框架)                     │
-│  EventBus │ Registry │ Router │ LLMClient │ Legislation      │
+│                  CONSTITUTIONAL FRAMEWORK                   │
+│   EventBus | Registry | Router | LLMClient | Legislation   │
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │
-│  │  LEGISLATIVE  │  │  EXECUTIVE   │  │    JUDICIAL      │   │
-│  │  立法权       │  │  行政权       │  │    司法权         │   │
+│  │ LEGISLATIVE  │  │  EXECUTIVE   │  │    JUDICIAL      │   │
 │  │              │  │              │  │                  │   │
-│  │  Senate      │  │  President   │  │  Supreme Court   │   │
-│  │  参议院       │  │  总统         │  │  最高法院         │   │
-│  │  - 法案审议   │  │  - 任务指挥   │  │  - 违宪审查      │   │
-│  │  - 任命确认   │  │  - 行政令     │  │  - 司法裁决      │   │
-│  │  - 弹劾审判   │  │  - 签署/否决  │  │  - 判例体系      │   │
-│  │              │  │      ↓       │  │  - 系统监控      │   │
-│  │  House       │  │  Workers     │  │                  │   │
-│  │  众议院       │  │  (内阁部门)   │  │                  │   │
-│  │  - 发起法案   │  │  State Dept  │  │                  │   │
-│  │  - 发起弹劾   │  │  Defense     │  │                  │   │
-│  │  - 预算控制   │  │  Treasury    │  │                  │   │
+│  │ Senate       │  │ President    │  │ Supreme Court    │   │
+│  │ - Bill review│  │ - Command    │  │ - Review         │   │
+│  │ - Confirmation│ │ - Orders     │  │ - Judgment       │   │
+│  │ - Impeachment│  │ - Sign/Veto  │  │ - Precedents     │   │
+│  │              │  │      ↓       │  │ - Monitoring     │   │
+│  │ House        │  │ Workers      │  │                  │   │
+│  │ - Proposals  │  │ (Cabinet)    │  │                  │   │
+│  │ - Impeachment│  │ State Dept   │  │                  │   │
+│  │ - Budgeting  │  │ Defense      │  │                  │   │
+│  │              │  │ Treasury     │  │                  │   │
 │  └──────────────┘  └──────────────┘  └──────────────────┘   │
 ├──────────────────────────────────────────────────────────────┤
-│  自组织引擎: Emergence │ Feedback │ Adaptation │ Stigmergy    │
+│ Self-Organization Engine: Emergence | Feedback | Adaptation │
+│                           | Stigmergy                        │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-## 法案生命周期 (Legislative Process)
+## Legislative Process
 
 ```
-1. 提案 (Bill Proposed)
-   ↓  众议院发起 或 总统提议
-2. 众议院投票 (House Vote)
-   ↓  简单多数通过
-3. 参议院投票 (Senate Vote)
-   ↓  简单多数通过（可 Filibuster）
-4. 总统签署 (Presidential Signature)
-   ├── 签署 → 法案生效 (Enacted)
-   └── 否决 (Veto)
+1. Bill proposed
+   ↓  Initiated by the House or proposed by the President
+2. House vote
+   ↓  Passed by simple majority
+3. Senate vote
+   ↓  Passed by simple majority (filibuster may apply)
+4. Presidential signature
+   ├── Sign -> Bill becomes law
+   └── Veto
        ↓
-5. 国会推翻否决 (Veto Override)
-   ├── 2/3 多数 → 法案生效
-   └── 未达 2/3 → 法案搁置
-       
-随时: 最高法院违宪审查 (Judicial Review)
-   → 违宪 → 法案无效 (Unconstitutional)
+5. Congressional override
+   ├── Two-thirds majority -> Bill becomes law
+   └── Fails to reach two-thirds -> Bill is blocked
+
+At any time: Supreme Court judicial review
+   -> Unconstitutional -> Bill becomes invalid
 ```
 
-## 大模型配置
+## LLM Configuration
 
-系统使用 OpenAI 兼容 API，默认配置：
+The system uses an OpenAI-compatible API. Default configuration:
 
 ```python
 LLM_CONFIG = {
@@ -89,7 +88,7 @@ LLM_CONFIG = {
 }
 ```
 
-通过环境变量覆盖：
+You can override it with environment variables:
 
 ```bash
 export OPENAI_API_KEY="your-key"
@@ -98,116 +97,115 @@ export OPENAI_MODEL="gpt-4"
 export MAX_TOKEN=8000
 ```
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 安装依赖
+# Install dependencies
 pip install -r requirements.txt
 
-# 启动系统
+# Start the system
 python main.py
 ```
 
-启动后系统自动：
-- 启动 HTTP API 服务（默认 `http://0.0.0.0:18790`）
-- 建立三权分立政府：
-  - **行政**: 1 President + 3 Workers（国务院/国防部/财政部）
-  - **立法**: 1 Senate + 1 House
-  - **司法**: 1 Supreme Court
-- 运行自组织引擎（涌现 / 反馈 / 信息素 / 自适应）
+After startup, the system automatically:
+- launches the HTTP API service (default: `http://0.0.0.0:18790`)
+- creates a three-branch government:
+  - **Executive**: 1 President + 3 Workers (State / Defense / Treasury)
+  - **Legislative**: 1 Senate + 1 House
+  - **Judicial**: 1 Supreme Court
+- runs the self-organization engine (emergence, feedback, stigmergy, adaptation)
 
-## 前端 API 接口
+## API Examples
 
-### 对话（最常用）
+### Chat (Most Common)
 
 ```bash
 curl -X POST http://localhost:18790/api/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "我是特朗普，针对不同国家增收关税进行法案和计划，法院立法，众议院提案，参议院投票，最高法院审判，政府执行"}'
+  -d '{"message": "Help me write a Python quicksort implementation"}'
 ```
 
-### 提交任务
+### Submit a Task
 
 ```bash
-# 代码生成
+# Code generation
 curl -X POST http://localhost:18790/api/task \
   -H "Content-Type: application/json" \
   -d '{
     "task_type": "codegen",
     "required_skill": "codegen",
-    "data": {"requirement": "实现一个异步HTTP客户端"}
+    "data": {"requirement": "Implement an async HTTP client"}
   }'
 ```
 
-### 查询状态
+### Query System Status
 
 ```bash
-# 系统状态（含三权分立信息、法案状态）
+# System status (including three-branch status and bill state)
 curl http://localhost:18790/api/status
 
-# Agent 列表（按分支分组）
+# Agent list grouped by branch
 curl http://localhost:18790/api/agents
 
-# 健康检查
+# Health check
 curl http://localhost:18790/api/health
 ```
 
-## 目录结构
+## Project Structure
 
 ```
 agent_system_USA/
 ├── config/
-│   └── settings.py              # 全局配置（含 LLM 配置）
+│   └── settings.py              # Global configuration, including LLM settings
 ├── core/
-│   ├── agent.py                 # Agent 基类
-│   ├── llm_client.py            # LLM 客户端（OpenAI 兼容）
-│   ├── message.py               # 消息协议（含三权分立消息类型）
-│   ├── event_bus.py             # 事件总线
-│   ├── registry.py              # Agent 注册中心
-│   └── environment.py           # 共享环境（信息素载体）
-├── checks_balances/             # 🆕 制衡机制
-│   ├── legislation.py           # 法案生命周期管理
-│   └── judicial_review.py       # 司法审查系统
+│   ├── agent.py                 # Base Agent class
+│   ├── llm_client.py            # OpenAI-compatible LLM client
+│   ├── message.py               # Message protocol, including branch-related message types
+│   ├── event_bus.py             # Event bus
+│   ├── registry.py              # Agent registry
+│   └── environment.py           # Shared environment / stigmergy carrier
+├── checks_balances/
+│   ├── legislation.py           # Bill lifecycle management
+│   └── judicial_review.py       # Judicial review system
 ├── self_org/
-│   ├── emergence.py             # 涌现引擎
-│   ├── feedback.py              # 反馈循环
-│   ├── adaptation.py            # 自适应策略
-│   └── stigmergy.py             # 信息素管理
+│   ├── emergence.py             # Emergence engine
+│   ├── feedback.py              # Feedback loop
+│   ├── adaptation.py            # Adaptive strategies
+│   └── stigmergy.py             # Stigmergy management
 ├── gateway/
-│   ├── gateway.py               # Gateway 宪法框架
-│   ├── router.py                # 自适应消息路由器
-│   └── http_api.py              # HTTP API 服务
-├── agents/                      # 🆕 三权分立 Agent
-│   ├── president.py             # 总统（行政权首脑）
-│   ├── senate.py                # 参议院（立法权上院）
-│   ├── house.py                 # 众议院（立法权下院）
-│   ├── supreme_court.py         # 最高法院（司法权）
-│   └── worker.py                # Worker（内阁执行者）
+│   ├── gateway.py               # Gateway constitutional framework
+│   ├── router.py                # Adaptive message router
+│   └── http_api.py              # HTTP API service
+├── agents/
+│   ├── president.py             # President, head of the executive branch
+│   ├── senate.py                # Senate, upper chamber of the legislature
+│   ├── house.py                 # House, lower chamber of the legislature
+│   ├── supreme_court.py         # Supreme Court, judicial branch
+│   └── worker.py                # Worker, cabinet-level executor
 ├── skills/
-│   ├── llm_skills.py            # LLM 技能集
-│   ├── search_skill.py          # 搜索技能
-│   ├── analyze_skill.py         # 分析技能
-│   └── transform_skill.py       # 转换技能
+│   ├── llm_skills.py            # LLM skill set
+│   ├── search_skill.py          # Search skills
+│   ├── analyze_skill.py         # Analysis skills
+│   └── transform_skill.py       # Transformation skills
 ├── utils/
 ├── examples/
-│   └── demo.py                  # 演示脚本
-├── main.py                      # 主入口
+│   └── demo.py                  # Demo script
+├── main.py                      # Entry point
 └── requirements.txt
 ```
 
-## 三权分立行为观测
+## Observable System Behaviors
 
-运行系统后，可以观察到以下制度性行为：
+After launching the system, you can observe the following institutional behaviors:
 
-1. **行政执行链**: 外部任务 → 总统 → 内阁部门执行 → 结果回传
-2. **立法流程**: 众议院提案 → 众议院投票 → 参议院投票 → 总统签署
-3. **总统否决**: 总统否决法案 → 国会可 2/3 多数推翻
-4. **司法审查**: 最高法院审查法案和行政令的"合宪性"
-5. **紧急立法**: 系统过载时众议院自动提出扩容法案
-6. **制衡保护**: 宪法保护的 Agent（总统/参议院/众议院/最高法院）不可被删除
-7. **自组织涌现**: 信息素路由、负载自平衡、自动扩缩容
-<img width="1908" height="1014" alt="3158964a-a7b5-4eb7-9efa-9ae44a663bee" src="https://github.com/user-attachments/assets/37a70771-5669-46d3-af5a-fc58bbe47d25" />
+1. **Executive execution chain**: external task -> President -> cabinet department execution -> result returned
+2. **Legislative flow**: House proposal -> House vote -> Senate vote -> presidential signature
+3. **Presidential veto**: the President vetoes a bill, and Congress may override it with a two-thirds majority
+4. **Judicial review**: the Supreme Court reviews the constitutional validity of bills and executive orders
+5. **Emergency legislation**: when the system is overloaded, the House may automatically propose expansion bills
+6. **Institutional protection**: constitutionally protected Agents (President, Senate, House, Supreme Court) cannot be deleted
+7. **Self-organization**: stigmergy-based routing, load balancing, and automatic scaling
 
-## 许可
+## License
 
 MIT License
