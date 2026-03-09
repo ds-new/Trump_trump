@@ -1,0 +1,9 @@
+# Self-Organizing Agent System with LLM
+# Python >= 3.11 required
+
+# LLM client (OpenAI-compatible API)
+openai>=1.0.0
+
+# Core system uses only Python standard library:
+#   asyncio, dataclasses, collections, enum, json, uuid, logging,
+#   pathlib, http.server, threading, urllib

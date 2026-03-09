@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USA Agent System — 任务监控面板</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #334155;
+  --border: #475569;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --primary: #3b82f6;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+  --executive: #f59e0b;
+  --legislative: #3b82f6;
+  --judicial: #a855f7;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.header {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.4; }
+}
+.refresh-info { font-size: 12px; color: var(--text-muted); }
+.btn {
+  border: none;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: var(--primary); }
+.btn-primary:hover:not(:disabled) { background: #2563eb; }
+.btn-accent {
+  background: linear-gradient(135deg, var(--executive), var(--legislative));
+}
+.btn-accent:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d97706, #2563eb);
+}
+.interval-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.container { padding: 20px 24px; max-width: 1600px; margin: 0 auto; }
+
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+}
+.card.blue::before { background: var(--primary); }
+.card.green::before { background: var(--success); }
+.card.red::before { background: var(--danger); }
+.card.yellow::before { background: var(--warning); }
+.card.cyan::before { background: var(--info); }
+.card.purple::before { background: var(--judicial); }
+.card-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.card-value {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.section-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-title { font-size: 15px; font-weight: 600; }
+.section-badge {
+  font-size: 11px;
+  background: var(--surface2);
+  padding: 3px 10px;
+  border-radius: 20px;
+  color: var(--text-muted);
+}
+
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.15);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+}
+td {
+  padding: 9px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(71,85,105,0.3);
+  font-variant-numeric: tabular-nums;
+}
+tr:hover td { background: rgba(59,130,246,0.04); }
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-success { background: rgba(34,197,94,0.15); color: var(--success); }
+.badge-failed { background: rgba(239,68,68,0.15); color: var(--danger); }
+.badge-running { background: rgba(59,130,246,0.15); color: var(--primary); animation: pulse 1.5s infinite; }
+.badge-pending { background: rgba(148,163,184,0.15); color: var(--text-muted); }
+
+.type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.type-president { background: rgba(245,158,11,0.2); color: var(--executive); }
+.type-worker { background: rgba(245,158,11,0.12); color: #fbbf24; }
+.type-senate { background: rgba(59,130,246,0.15); color: var(--legislative); }
+.type-house { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.type-supreme_court { background: rgba(168,85,247,0.15); color: var(--judicial); }
+
+.activity-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.act-task { background: rgba(245,158,11,0.15); color: var(--warning); }
+.act-bill { background: rgba(59,130,246,0.15); color: var(--legislative); }
+.act-vote { background: rgba(96,165,250,0.15); color: #60a5fa; }
+.act-judicial_review { background: rgba(168,85,247,0.15); color: var(--judicial); }
+.act-ruling { background: rgba(168,85,247,0.2); color: #c084fc; }
+.act-veto { background: rgba(239,68,68,0.15); color: var(--danger); }
+.act-executive_order { background: rgba(245,158,11,0.2); color: #fbbf24; }
+.act-bill_sign { background: rgba(34,197,94,0.15); color: var(--success); }
+
+.branch-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+}
+.branch-executive { background: rgba(245,158,11,0.1); color: var(--executive); }
+.branch-legislative { background: rgba(59,130,246,0.1); color: var(--legislative); }
+.branch-judicial { background: rgba(168,85,247,0.1); color: var(--judicial); }
+
+.progress-bar {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 100%;
+  min-width: 60px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 1024px) { .two-col { grid-template-columns: 1fr; } }
+
+.table-scroll {
+  max-height: 480px;
+  overflow-y: auto;
+}
+.table-scroll::-webkit-scrollbar { width: 6px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.token-bar-container { padding: 16px 20px; }
+.token-bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+.token-bar-label {
+  width: 130px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.token-bar-track {
+  flex: 1;
+  height: 22px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.token-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  min-width: fit-content;
+  white-space: nowrap;
+}
+.token-bar-value {
+  font-size: 12px;
+  color: var(--text);
+  width: 80px;
+  text-align: right;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.error-banner {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: var(--danger);
+  padding: 10px 20px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: none;
+}
+
+.toast {
+  position: fixed;
+  top: 70px;
+  right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--success);
+  color: var(--success);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 1000;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.toast.error { border-color: var(--danger); color: var(--danger); }
+@keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>USA Agent System — 任务监控面板</h1>
+  <div class="header-right">
+    <button class="btn btn-accent" id="compBtn" onclick="sendComprehensiveTask()">
+      全流程测试
+    </button>
+    <div class="status-dot" id="statusDot"></div>
+    <span class="refresh-info" id="refreshInfo">等待数据...</span>
+    <select class="interval-select" id="intervalSelect">
+      <option value="3000">3秒刷新</option>
+      <option value="5000" selected>5秒刷新</option>
+      <option value="10000">10秒刷新</option>
+      <option value="30000">30秒刷新</option>
+      <option value="0">手动刷新</option>
+    </select>
+    <button class="btn btn-primary" onclick="fetchData()">刷新</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div class="container">
+  <div class="error-banner" id="errorBanner"></div>
+
+  <div class="cards-row" id="overviewCards">
+    <div class="card blue">
+      <div class="card-label">总活动数</div>
+      <div class="card-value" id="totalTasks">-</div>
+      <div class="card-sub" id="runningTasks">运行中: -</div>
+    </div>
+    <div class="card green">
+      <div class="card-label">成功率</div>
+      <div class="card-value" id="successRate">-</div>
+      <div class="card-sub" id="successCount">成功: - / 失败: -</div>
+    </div>
+    <div class="card yellow">
+      <div class="card-label">平均耗时</div>
+      <div class="card-value" id="avgDuration">-</div>
+      <div class="card-sub">每任务平均执行时间</div>
+    </div>
+    <div class="card cyan">
+      <div class="card-label">总 Token 消耗</div>
+      <div class="card-value" id="totalTokens">-</div>
+      <div class="card-sub" id="tokenDetail">输入: - / 输出: -</div>
+    </div>
+    <div class="card purple">
+      <div class="card-label">智能体</div>
+      <div class="card-value" id="agentTotal">-</div>
+      <div class="card-sub" id="llmCalls">LLM 调用: -</div>
+    </div>
+    <div class="card red">
+      <div class="card-label">每任务 Token</div>
+      <div class="card-value" id="tokensPerTask">-</div>
+      <div class="card-sub" id="activityBreakdown">-</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">智能体工作统计（三权分立）</span>
+        <span class="section-badge" id="agentCount">0 个智能体</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>分支</th>
+              <th>智能体</th>
+              <th>角色</th>
+              <th>活动数</th>
+              <th>成功率</th>
+              <th>耗时</th>
+              <th>Token</th>
+            </tr>
+          </thead>
+          <tbody id="agentTableBody">
+            <tr><td colspan="7" class="empty-state">暂无数据</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Token 消耗分布</span>
+        <span class="section-badge" id="totalTokenBadge">总计: 0</span>
+      </div>
+      <div class="token-bar-container" id="tokenBars">
+        <div class="empty-state">暂无 Token 消耗数据</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">活动历史记录</span>
+      <span class="section-badge" id="historyCount">最近 0 条</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>智能体</th>
+            <th>角色</th>
+            <th>活动</th>
+            <th>类型</th>
+            <th>状态</th>
+            <th>耗时</th>
+            <th>Token</th>
+            <th>时间</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <tr><td colspan="9" class="empty-state">暂无记录</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.origin;
+let refreshTimer = null;
+
+function formatNumber(n) {
+  if (n == null || isNaN(n)) return '-';
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function formatDuration(s) {
+  if (s == null || isNaN(s) || s === 0) return '-';
+  if (s < 1) return (s * 1000).toFixed(0) + 'ms';
+  if (s < 60) return s.toFixed(2) + 's';
+  return (s / 60).toFixed(1) + 'min';
+}
+
+function formatTime(ts) {
+  if (!ts) return '-';
+  const d = new Date(ts * 1000);
+  return d.toLocaleTimeString('zh-CN', { hour12: false });
+}
+
+function shortId(id) {
+  if (!id) return '-';
+  if (id.length > 18) return id.substring(0, 18) + '…';
+  return id;
+}
+
+function getTypeClass(type) {
+  return {
+    president: 'type-president', worker: 'type-worker',
+    senate: 'type-senate', house: 'type-house',
+    supreme_court: 'type-supreme_court',
+  }[type] || '';
+}
+
+function getTypeLabel(type, dept) {
+  const labels = {
+    president: '总统', worker: '内阁', senate: '参议院',
+    house: '众议院', supreme_court: '最高法院',
+  };
+  let label = labels[type] || type;
+  if (type === 'worker' && dept) {
+    const dl = { state: '国务院', defense: '国防部', treasury: '财政部', general: '通用部门' };
+    label = dl[dept] || dept;
+  }
+  return label;
+}
+
+function getBranchLabel(branch) {
+  return { executive: '行政', legislative: '立法', judicial: '司法' }[branch] || branch || '-';
+}
+function getBranchClass(branch) {
+  return { executive: 'branch-executive', legislative: 'branch-legislative', judicial: 'branch-judicial' }[branch] || '';
+}
+
+function getActivityLabel(act) {
+  return {
+    task: '任务执行', bill: '法案处理', vote: '投票表决',
+    judicial_review: '司法审查', ruling: '司法裁决',
+    veto: '总统否决', executive_order: '行政令',
+    bill_sign: '法案签署', bill_vote: '法案投票',
+    bill_propose: '法案提案', bill_signature: '签署审批',
+  }[act] || act || '-';
+}
+function getActivityClass(act) {
+  const map = {
+    task: 'act-task', bill: 'act-bill', vote: 'act-vote',
+    bill_vote: 'act-bill', bill_propose: 'act-bill', bill_signature: 'act-bill',
+    judicial_review: 'act-judicial_review', ruling: 'act-ruling',
+    veto: 'act-veto', executive_order: 'act-executive_order',
+    bill_sign: 'act-bill_sign',
+  };
+  return map[act] || '';
+}
+
+function getStatusBadge(status) {
+  return {
+    success: '<span class="badge badge-success">成功</span>',
+    failed: '<span class="badge badge-failed">失败</span>',
+    running: '<span class="badge badge-running">运行中</span>',
+    pending: '<span class="badge badge-pending">等待中</span>',
+  }[status] || `<span class="badge badge-pending">${status}</span>`;
+}
+
+function getBarColor(type) {
+  return {
+    president: '#f59e0b', worker: '#fbbf24',
+    senate: '#3b82f6', house: '#60a5fa',
+    supreme_court: '#a855f7',
+  }[type] || '#64748b';
+}
+
+function showToast(msg, isError) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+function renderOverview(data) {
+  const o = data.overview || {};
+  document.getElementById('totalTasks').textContent = formatNumber(o.total_tasks);
+  document.getElementById('runningTasks').textContent = `运行中: ${o.running || 0}`;
+
+  const rate = o.success_rate != null ? (o.success_rate * 100).toFixed(1) + '%' : '-';
+  document.getElementById('successRate').textContent = rate;
+  document.getElementById('successCount').textContent = `成功: ${o.success || 0} / 失败: ${o.failed || 0}`;
+
+  document.getElementById('avgDuration').textContent = formatDuration(o.avg_duration);
+  document.getElementById('totalTokens').textContent = formatNumber(o.total_tokens);
+  document.getElementById('tokenDetail').textContent =
+    `输入: ${formatNumber(o.prompt_tokens)} / 输出: ${formatNumber(o.completion_tokens)}`;
+  document.getElementById('agentTotal').textContent = o.registered_agents || '-';
+
+  const ts = data.token_stats || {};
+  document.getElementById('llmCalls').textContent = `LLM 调用: ${ts.total?.total_calls || 0} 次`;
+  document.getElementById('tokensPerTask').textContent = formatNumber(o.tokens_per_task);
+
+  const ac = o.activity_counts || {};
+  const parts = Object.entries(ac).map(([k,v]) => `${getActivityLabel(k)}:${v}`);
+  document.getElementById('activityBreakdown').textContent = parts.join(' | ') || '-';
+}
+
+function renderAgentTable(data) {
+  const agents = data.agent_stats || [];
+  document.getElementById('agentCount').textContent = `${agents.length} 个智能体`;
+
+  if (agents.length === 0) {
+    document.getElementById('agentTableBody').innerHTML =
+      '<tr><td colspan="7" class="empty-state">暂无智能体数据</td></tr>';
+    return;
+  }
+
+  const rows = agents.map(a => {
+    const rate = a.total_tasks > 0 ? (a.success_rate * 100).toFixed(1) : '-';
+    const rateColor = a.total_tasks === 0 ? 'var(--text-muted)' :
+                      a.success_rate >= 0.8 ? 'var(--success)' :
+                      a.success_rate >= 0.5 ? 'var(--warning)' : 'var(--danger)';
+    const ratePct = a.total_tasks > 0 ? rate : '0';
+    const branch = a.branch || '';
+    const actSummary = Object.entries(a.activities || {})
+      .map(([k,v]) => `${getActivityLabel(k)}×${v}`)
+      .join(', ') || '空闲';
+    return `<tr>
+      <td><span class="branch-badge ${getBranchClass(branch)}">${getBranchLabel(branch)}</span></td>
+      <td title="${a.agent_id}">${shortId(a.agent_id)}</td>
+      <td><span class="type-badge ${getTypeClass(a.agent_type)}">${getTypeLabel(a.agent_type, a.department)}</span></td>
+      <td>
+        ${a.total_tasks}
+        <span style="color:var(--text-muted);font-size:10px;display:block">${actSummary}</span>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="progress-bar" style="width:50px">
+            <div class="progress-fill" style="width:${ratePct}%;background:${rateColor}"></div>
+          </div>
+          <span style="color:${rateColor};font-size:12px">${rate}${a.total_tasks > 0 ? '%' : ''}</span>
+        </div>
+      </td>
+      <td>${formatDuration(a.avg_duration)}</td>
+      <td>${formatNumber(a.total_tokens)}</td>
+    </tr>`;
+  });
+  document.getElementById('agentTableBody').innerHTML = rows.join('');
+}
+
+function renderTokenBars(data) {
+  const agents = data.agent_stats || [];
+  const total = agents.reduce((s, a) => s + (a.total_tokens || 0), 0);
+  document.getElementById('totalTokenBadge').textContent = `总计: ${formatNumber(total)}`;
+
+  const withTokens = agents.filter(a => a.total_tokens > 0);
+  if (withTokens.length === 0) {
+    const allLabels = agents.map(a =>
+      `<div class="token-bar-row">
+        <div class="token-bar-label">${getTypeLabel(a.agent_type, a.department)}</div>
+        <div class="token-bar-track"><div class="token-bar-fill" style="width:0%"></div></div>
+        <div class="token-bar-value">0</div>
+      </div>`
+    );
+    document.getElementById('tokenBars').innerHTML = allLabels.join('') ||
+      '<div class="empty-state">暂无 Token 消耗数据</div>';
+    return;
+  }
+
+  const maxTokens = Math.max(...withTokens.map(a => a.total_tokens));
+  const bars = agents.map(a => {
+    const pct = maxTokens > 0 ? ((a.total_tokens || 0) / maxTokens * 100) : 0;
+    const color = getBarColor(a.agent_type);
+    const label = getTypeLabel(a.agent_type, a.department);
+    return `<div class="token-bar-row">
+      <div class="token-bar-label" title="${a.agent_id}">${label}</div>
+      <div class="token-bar-track">
+        <div class="token-bar-fill" style="width:${Math.max(pct, pct > 0 ? 3 : 0)}%;background:${color}">
+          ${pct > 25 ? formatNumber(a.total_tokens) : ''}
+        </div>
+      </div>
+      <div class="token-bar-value">${formatNumber(a.total_tokens || 0)}</div>
+    </div>`;
+  });
+  document.getElementById('tokenBars').innerHTML = bars.join('');
+}
+
+function renderHistory(data) {
+  const tasks = data.task_history || [];
+  document.getElementById('historyCount').textContent = `最近 ${tasks.length} 条`;
+
+  if (tasks.length === 0) {
+    document.getElementById('historyTableBody').innerHTML =
+      '<tr><td colspan="9" class="empty-state">暂无记录</td></tr>';
+    return;
+  }
+
+  const rows = tasks.map(t => {
+    const actType = t.activity_type || t.task_type || 'task';
+    return `<tr>
+      <td title="${t.task_id}">${shortId(t.task_id)}</td>
+      <td title="${t.agent_id}">${shortId(t.agent_id)}</td>
+      <td><span class="type-badge ${getTypeClass(t.agent_type)}">${getTypeLabel(t.agent_type, t.department)}</span></td>
+      <td><span class="activity-badge ${getActivityClass(actType)}">${getActivityLabel(actType)}</span></td>
+      <td>${t.skill_used || t.task_type || '-'}</td>
+      <td>${getStatusBadge(t.status)}</td>
+      <td>${formatDuration(t.duration)}</td>
+      <td>${formatNumber(t.total_tokens)}</td>
+      <td>${formatTime(t.start_time || t.end_time)}</td>
+    </tr>`;
+  });
+  document.getElementById('historyTableBody').innerHTML = rows.join('');
+}
+
+async function fetchData() {
+  const dot = document.getElementById('statusDot');
+  const info = document.getElementById('refreshInfo');
+  const errorBanner = document.getElementById('errorBanner');
+  try {
+    const resp = await fetch(API_BASE + '/api/monitor/data');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    renderOverview(data);
+    renderAgentTable(data);
+    renderTokenBars(data);
+    renderHistory(data);
+    dot.style.background = 'var(--success)';
+    info.textContent = `最后更新: ${new Date().toLocaleTimeString('zh-CN', {hour12: false})}`;
+    errorBanner.style.display = 'none';
+  } catch (e) {
+    dot.style.background = 'var(--danger)';
+    errorBanner.textContent = `数据获取失败: ${e.message}。请确认系统已启动。`;
+    errorBanner.style.display = 'block';
+    info.textContent = `获取失败 ${new Date().toLocaleTimeString('zh-CN', {hour12: false})}`;
+  }
+}
+
+async function sendComprehensiveTask() {
+  const btn = document.getElementById('compBtn');
+  btn.disabled = true;
+  btn.textContent = '下发中...';
+  try {
+    const resp = await fetch(API_BASE + '/api/task/comprehensive', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: '分析当前系统状态并给出性能优化建议' }),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showToast('全流程任务已下发，所有分支已启动工作');
+    } else {
+      showToast('下发失败: ' + (data.error || 'Unknown'), true);
+    }
+    setTimeout(fetchData, 2000);
+  } catch (e) {
+    showToast('请求失败: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '全流程测试';
+  }
+}
+
+function setupAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  const interval = parseInt(document.getElementById('intervalSelect').value);
+  if (interval > 0) refreshTimer = setInterval(fetchData, interval);
+}
+
+document.getElementById('intervalSelect').addEventListener('change', setupAutoRefresh);
+fetchData();
+setupAutoRefresh();
+</script>
+</body>
+</html>
