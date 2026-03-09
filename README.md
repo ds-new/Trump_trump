@@ -83,8 +83,8 @@
 ```python
 LLM_CONFIG = {
     'api_key': 'your-api-key',
-    'base_url': 'https://ai.shanghai-electric.com/sedt-llm-api/v1',
-    'model': 'DeepSeek-V3.1-Terminus',
+    'base_url': '',
+    'model': '',
     'max_tokens': 12000,
 }
 ```
