@@ -26,6 +26,7 @@
 - 复杂任务分解与分层执行
 - LLM 驱动的组织式决策系统原型
 - 教学展示：用软件系统模拟政治制度与组织协作
+<img width="1908" height="1014" alt="3158964a-a7b5-4eb7-9efa-9ae44a663bee" src="https://github.com/user-attachments/assets/751620a9-582e-42c4-ba1e-12f8a28380fd" />
 
 ## 项目价值
 
