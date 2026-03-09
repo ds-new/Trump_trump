@@ -123,7 +123,7 @@ python main.py
 ```bash
 curl -X POST http://localhost:18790/api/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "帮我写一个Python快速排序算法"}'
+  -d '{"message": "我是特朗普，针对不同国家增收关税进行法案和计划，法院立法，众议院提案，参议院投票，最高法院审判，政府执行"}'
 ```
 
 ### 提交任务
