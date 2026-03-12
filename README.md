@@ -1,4 +1,4 @@
-# Base openclaw on USA Three-Branch Agent System
+# a multi-agent collaboration system based on an OpenClaw design of the 'separation of powers' governance structure in the United States
 
 > Base openclaw on  A multi-agent system inspired by the U.S. separation of powers, integrating LLMs and mapping constitutional checks and balances into an agent collaboration architecture.
 
